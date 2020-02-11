@@ -21,6 +21,11 @@ import com.google.android.material.navigation.NavigationView;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -37,9 +42,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float [] linAcc;
     float [] step;
 
-    final float [] record = new float[10];
+    Map<String,Float> map = new HashMap<String, Float>();
+    int index;
+
     final Handler handler = new Handler();
-    ArrayList<Float> outputData = new ArrayList<Float>();
+
+    final Handler stopHandler = new Handler();
 
     boolean accCheck;
     boolean graCheck;
@@ -112,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void stopSensing (View view)
     {
+
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
@@ -120,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     public void clickSen(View view)
     {
+        index = 0;
         if (sensingOn)
         {
             Button button = (Button) findViewById(R.id.sensingOn);
@@ -198,24 +208,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void run()
             {
-                for (int i = 0; i < record.length; i++)
-                {
-                    if (i < 3) {
-                        record[i] = acc[i];
-                    } else if (i < 6) {
-                        record[i] = gra[i % 3];
-                    } else if (i < 9) {
-                        record[i] = gyr[i % 3];
-                    } else {
-                        record[i] = step[0];
-                    }
-                }
-                Float temp_record[] = new Float[record.length];
-                int index = 0;
-                for (final Float value : record)
-                    temp_record[index++] = value;
-                outputData.addAll(Arrays.asList(temp_record));
-                System.out.println(outputData);
+                map.put("acc_x",acc[0]);
+                map.put("acc_y",acc[1]);
+                map.put("acc_z",acc[2]);
+                map.put("gra_x",gra[0]);
+                map.put("gra_y",gra[1]);
+                map.put("gra_z",gra[2]);
+                map.put("gyr_x",gyr[0]);
+                map.put("gyr_y",gyr[1]);
+                map.put("gyr_z",gyr[2]);
+                map.put("lin_x",linAcc[0]);
+                map.put("lin_y",linAcc[1]);
+                map.put("lin_z",linAcc[2]);
+                System.out.println(map);
             }
         }, 1000);
 
@@ -225,37 +230,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public boolean onNavigationItemSelected(MenuItem item)
     {
-//        int id = item.getItemId();
-//
-//        if (id == R.id.nav_main)
-//        {
-//            Intent intent = new Intent(this, MainActivity.class);
-//            startActivity(intent);
-//        }
-//        else if (id == R.id.nav_position_sensors)
-//        {
-//            Intent intent = new Intent(this, PositionSensorsActivity.class);
-//            startActivity(intent);
-//        }
-//        else if (id == R.id.nav_environment_sensors)
-//        {
-//            Intent intent = new Intent(this, EnvironmentSensorsActivity.class);
-//            startActivity(intent);
-//        }
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-//    public void onBackPressed()
-//    {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START))
-//        {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else
-//        {
-//            super.onBackPressed();
-//        }
-//    }
 }
