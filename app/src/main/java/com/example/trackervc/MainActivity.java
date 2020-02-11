@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 for (final Float value : record)
                     temp_record[index++] = value;
                 outputData.addAll(Arrays.asList(temp_record));
+                System.out.println(outputData);
             }
         }, 1000);
     }
