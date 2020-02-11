@@ -1,5 +1,6 @@
 package com.example.trackervc;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -10,17 +11,24 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 //import android.support.v7.widget.Toolbar;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -49,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public static boolean sensingOn = false;
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy)
     {
@@ -73,8 +84,44 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         linAccCheck = false;
         stepCheck = false;
 
+// Add a new document with a generated ID
 
+//        int columns = 2;
+//        int rows = 2;
+//
+//        String[][] newArray = new String[columns][rows];
+//        newArray[0][0] = "France";
+//        newArray[0][1] = "Blue";
+//
+//        newArray[1][0] = "Ireland";
+//        newArray[1][1] = "Green";
+//
+//        for(int i = 0; i < rows; i++){
+//            for(int j = 0; j < columns; j++){
+//                System.out.println(newArray[i][j]);
+//            }
+//        }
+//
 
+//        List sendingList = new ArrayList<>(Arrays.asList(newArray));
+
+        db.collection("test")
+                .add(sendingList)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+//                        Log.d( "DocumentSnapshot added with ID: " + documentReference.getId());
+                        System.out.println("done");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "Error adding document", e);
+                        System.out.println("NOT DONE");
+
+                    }
+                });
     }
 
 
@@ -207,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     } else if (i < 9) {
                         record[i] = gyr[i % 3];
                     } else {
-                        record[i] = step[0];
+//                        record[i] = step[0];
                     }
                 }
                 Float temp_record[] = new Float[record.length];
@@ -217,6 +264,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 outputData.addAll(Arrays.asList(temp_record));
                 System.out.println(outputData);
             }
+
+
+
         }, 1000);
 
 
