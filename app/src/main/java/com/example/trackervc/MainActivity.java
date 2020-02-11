@@ -74,30 +74,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         stepCheck = false;
 
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run()
-            {
-                for (int i = 0; i < record.length; i++)
-                {
-                    if (i < 3) {
-                        record[i] = acc[i];
-                    } else if (i < 6) {
-                        record[i] = gra[i % 3];
-                    } else if (i < 9) {
-                        record[i] = gyr[i % 3];
-                    } else {
-                        record[i] = step[0];
-                    }
-                }
-                Float temp_record[] = new Float[record.length];
-                int index = 0;
-                for (final Float value : record)
-                    temp_record[index++] = value;
-                outputData.addAll(Arrays.asList(temp_record));
-                System.out.println(outputData);
-            }
-        }, 1000);
+
     }
 
 
@@ -216,6 +193,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             stepView.setText("STEP COUNTER = "+step);
 
         }
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run()
+            {
+                for (int i = 0; i < record.length; i++)
+                {
+                    if (i < 3) {
+                        record[i] = acc[i];
+                    } else if (i < 6) {
+                        record[i] = gra[i % 3];
+                    } else if (i < 9) {
+                        record[i] = gyr[i % 3];
+                    } else {
+                        record[i] = step[0];
+                    }
+                }
+                Float temp_record[] = new Float[record.length];
+                int index = 0;
+                for (final Float value : record)
+                    temp_record[index++] = value;
+                outputData.addAll(Arrays.asList(temp_record));
+                System.out.println(outputData);
+            }
+        }, 1000);
 
 
 
