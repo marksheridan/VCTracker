@@ -68,6 +68,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    Runnable myStop = new Runnable() {
+        @Override
+        public void run() {
+            map.put("acc_x", acc[0]);
+            map.put("acc_y", acc[1]);
+            map.put("acc_z", acc[2]);
+            map.put("gra_x", gra[0]);
+            map.put("gra_y", gra[1]);
+            map.put("gra_z", gra[2]);
+            map.put("gyr_x", gyr[0]);
+            map.put("gyr_y", gyr[1]);
+            map.put("gyr_z", gyr[2]);
+            map.put("lin_x", linAcc[0]);
+            map.put("lin_y", linAcc[1]);
+            map.put("lin_z", linAcc[2]);
+            System.out.println(map);
+            System.out.println(sensingOn);
+            stopHandler.postDelayed(myStop,1000);
+        }
+    };
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -80,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Toolbar toolbar = (Toolbar)findViewById(R.id.t)
         accelerometer = null;
         gravity = null;
         gyroscope = null;
@@ -95,8 +115,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     }
-
-
 
 
     public void startSensing(View view){
@@ -127,9 +145,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.registerListener(this,stepCounter, SensorManager.SENSOR_DELAY_GAME);
         }
 
-
-
-
     }
 
     public void stopSensing (View view)
@@ -140,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER));
+        stopHandler.removeCallbacks(myStop);
     }
     public void clickSen(View view)
     {
@@ -151,80 +167,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             stopSensing(view);
             sensingOn = false;
         }
-        else
-        {
+        else {
             final Button button = (Button) findViewById(R.id.sensingOn);
             startSensing(view);
             button.setText("STOP");
 
-
-            if(!sensingOn) {
-                final Runnable myStop = new Runnable() {
-                    //                private Boolean stop = false;
-                    @Override
-                    public void run() {
-
-
-                        map.put("acc_x", acc[0]);
-                        map.put("acc_y", acc[1]);
-                        map.put("acc_z", acc[2]);
-                        map.put("gra_x", gra[0]);
-                        map.put("gra_y", gra[1]);
-                        map.put("gra_z", gra[2]);
-                        map.put("gyr_x", gyr[0]);
-                        map.put("gyr_y", gyr[1]);
-                        map.put("gyr_z", gyr[2]);
-                        map.put("lin_x", linAcc[0]);
-                        map.put("lin_y", linAcc[1]);
-                        map.put("lin_z", linAcc[2]);
-//
-                        System.out.println(map);
-                        System.out.println(sensingOn);
-
-//                    System.out.println("hello");
-
-//                    db.collection("test")
-//                            .add(map)
-//                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                                @Override
-//                                public void onSuccess(DocumentReference documentReference) {
-////                        Log.d( "DocumentSnapshot added with ID: " + documentReference.getId());
-//                                    System.out.println("done");
-//                                }
-//                            })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-////                        Log.w(TAG, "Error adding document", e);
-//                                    System.out.println("NOT DONE");
-//
-//                                }
-//                            });
-
-
-//                    System.out.println(map);
-                        long now = SystemClock.uptimeMillis();
-
-                        long next = now + (5000 - now % 1000);
-
-//                }
-                        stopHandler.postDelayed(this, 5000);
-                    }
-
-
-//                public void setStop(Boolean stop) {
-//                    this.stop = stop;
-//                }
-
-
-                };
+            if (!sensingOn) {
                 myStop.run();
             }
+
             sensingOn = true;
-
-
-
         }
+
     }
 
     public void onSensorChanged(SensorEvent event)
@@ -284,20 +238,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             stepView.setText("STEP COUNTER = "+step);
 
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
     }
 
     public boolean onNavigationItemSelected(MenuItem item)
