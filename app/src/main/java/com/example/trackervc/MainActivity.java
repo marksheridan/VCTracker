@@ -11,6 +11,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 //import android.support.v7.widget.Toolbar;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -39,15 +45,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Sensor linearAcceleration;
     Sensor stepCounter;
 
-    float [] acc;
-    float [] gra;
-    float [] gyr;
-    float [] linAcc;
+    float [] acc = {0.0f,0.0f,0.0f};
+    float [] gra = {0.0f,0.0f,0.0f};
+    float [] gyr = {0.0f,0.0f,0.0f};
+    float [] linAcc ={0.0f,0.0f,0.0f};
     float [] step;
 
-    final float [] record = new float[10];
+    Map<String,Float> map = new HashMap<String, Float>();
+    int index;
+
     final Handler handler = new Handler();
-    ArrayList<Float> outputData = new ArrayList<Float>();
+
+    final Handler stopHandler = new Handler();
 
     boolean accCheck;
     boolean graCheck;
@@ -84,44 +93,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         linAccCheck = false;
         stepCheck = false;
 
-// Add a new document with a generated ID
 
-//        int columns = 2;
-//        int rows = 2;
-//
-//        String[][] newArray = new String[columns][rows];
-//        newArray[0][0] = "France";
-//        newArray[0][1] = "Blue";
-//
-//        newArray[1][0] = "Ireland";
-//        newArray[1][1] = "Green";
-//
-//        for(int i = 0; i < rows; i++){
-//            for(int j = 0; j < columns; j++){
-//                System.out.println(newArray[i][j]);
-//            }
-//        }
-//
-
-//        List sendingList = new ArrayList<>(Arrays.asList(newArray));
-
-        db.collection("test")
-                .add(sendingList)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.d( "DocumentSnapshot added with ID: " + documentReference.getId());
-                        System.out.println("done");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "Error adding document", e);
-                        System.out.println("NOT DONE");
-
-                    }
-                });
     }
 
 
@@ -155,10 +127,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.registerListener(this,stepCounter, SensorManager.SENSOR_DELAY_GAME);
         }
 
+
+
+
     }
 
     public void stopSensing (View view)
     {
+
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
@@ -167,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     public void clickSen(View view)
     {
+        index = 0;
         if (sensingOn)
         {
             Button button = (Button) findViewById(R.id.sensingOn);
@@ -176,10 +153,77 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         else
         {
-            Button button = (Button) findViewById(R.id.sensingOn);
+            final Button button = (Button) findViewById(R.id.sensingOn);
             startSensing(view);
             button.setText("STOP");
+
+
+            if(!sensingOn) {
+                final Runnable myStop = new Runnable() {
+                    //                private Boolean stop = false;
+                    @Override
+                    public void run() {
+
+
+                        map.put("acc_x", acc[0]);
+                        map.put("acc_y", acc[1]);
+                        map.put("acc_z", acc[2]);
+                        map.put("gra_x", gra[0]);
+                        map.put("gra_y", gra[1]);
+                        map.put("gra_z", gra[2]);
+                        map.put("gyr_x", gyr[0]);
+                        map.put("gyr_y", gyr[1]);
+                        map.put("gyr_z", gyr[2]);
+                        map.put("lin_x", linAcc[0]);
+                        map.put("lin_y", linAcc[1]);
+                        map.put("lin_z", linAcc[2]);
+//
+                        System.out.println(map);
+                        System.out.println(sensingOn);
+
+//                    System.out.println("hello");
+
+//                    db.collection("test")
+//                            .add(map)
+//                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                                @Override
+//                                public void onSuccess(DocumentReference documentReference) {
+////                        Log.d( "DocumentSnapshot added with ID: " + documentReference.getId());
+//                                    System.out.println("done");
+//                                }
+//                            })
+//                            .addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+////                        Log.w(TAG, "Error adding document", e);
+//                                    System.out.println("NOT DONE");
+//
+//                                }
+//                            });
+
+
+//                    System.out.println(map);
+                        long now = SystemClock.uptimeMillis();
+
+                        long next = now + (5000 - now % 1000);
+
+//                }
+                        stopHandler.postDelayed(this, 5000);
+                    }
+
+
+//                public void setStop(Boolean stop) {
+//                    this.stop = stop;
+//                }
+
+
+                };
+                myStop.run();
+            }
             sensingOn = true;
+
+
+
         }
     }
 
@@ -241,33 +285,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run()
-            {
-                for (int i = 0; i < record.length; i++)
-                {
-                    if (i < 3) {
-                        record[i] = acc[i];
-                    } else if (i < 6) {
-                        record[i] = gra[i % 3];
-                    } else if (i < 9) {
-                        record[i] = gyr[i % 3];
-                    } else {
-//                        record[i] = step[0];
-                    }
-                }
-                Float temp_record[] = new Float[record.length];
-                int index = 0;
-                for (final Float value : record)
-                    temp_record[index++] = value;
-                outputData.addAll(Arrays.asList(temp_record));
-                System.out.println(outputData);
-            }
 
 
 
-        }, 1000);
+
+
+
+
+
+
+
 
 
 
@@ -275,37 +302,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public boolean onNavigationItemSelected(MenuItem item)
     {
-//        int id = item.getItemId();
-//
-//        if (id == R.id.nav_main)
-//        {
-//            Intent intent = new Intent(this, MainActivity.class);
-//            startActivity(intent);
-//        }
-//        else if (id == R.id.nav_position_sensors)
-//        {
-//            Intent intent = new Intent(this, PositionSensorsActivity.class);
-//            startActivity(intent);
-//        }
-//        else if (id == R.id.nav_environment_sensors)
-//        {
-//            Intent intent = new Intent(this, EnvironmentSensorsActivity.class);
-//            startActivity(intent);
-//        }
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-//    public void onBackPressed()
-//    {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START))
-//        {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else
-//        {
-//            super.onBackPressed();
-//        }
-//    }
 }
