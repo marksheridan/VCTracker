@@ -15,9 +15,12 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -69,15 +72,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     boolean linAccCheck;
     boolean stepCheck;
 
+    String activityName;
     public static boolean sensingOn = false;
 
 //    FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference myRef = database.getReference("vcfittracker");
+    DatabaseReference myRef_walking = database.getReference("vcfittracker_walking");
+    DatabaseReference myRef_running = database.getReference("vcfittracker_running");
+
 
     EditText nameEt;
     String name;
-
+    Spinner spinnerActivity;
 
     int idx = 0;
 
@@ -98,7 +104,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             map.put("lin_z", linAcc[2]);
 
             long time_now = System.currentTimeMillis();
-            myRef.child(name + "_" + Long.toString(time_now)).setValue(map);
+            if(activityName.equals("Walking")){
+                myRef_walking.child(name + "_" + Long.toString(time_now)).setValue(map);
+
+            }else{
+                myRef_running.child(name + "_" + Long.toString(time_now)).setValue(map);
+
+            }
+//            myRef.child(name + "_" + Long.toString(time_now)).setValue(map);
 
             System.out.println(map);
             System.out.println(sensingOn);
@@ -130,8 +143,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         linAccCheck = false;
         stepCheck = false;
 
-        nameEt = (EditText)findViewById(R.id.name);
-
+        nameEt = findViewById(R.id.name);
+        spinnerActivity = findViewById(R.id.spinnerActivity);
+        String[] activities = { "Walking", "Running" };
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, activities);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerActivity.setAdapter(adapter);
 
     }
 
@@ -159,10 +176,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if(linearAcceleration!=null){
             sensorManager.registerListener(this, linearAcceleration, SensorManager.SENSOR_DELAY_GAME);
         }
-        this.stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        if(stepCounter!=null){
-            sensorManager.registerListener(this,stepCounter, SensorManager.SENSOR_DELAY_GAME);
-        }
+//        this.stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+//        if(stepCounter!=null){
+//            sensorManager.registerListener(this,stepCounter, SensorManager.SENSOR_DELAY_GAME);
+//        }
 
     }
 
@@ -173,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
         sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION));
-        sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER));
+//        sensorManager.unregisterListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER));
         stopHandler.removeCallbacks(myStop);
     }
     public void clickSen(View view)
@@ -190,9 +207,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             final Button button = (Button) findViewById(R.id.sensingOn);
             startSensing(view);
             name = (String) nameEt.getText().toString();
-
+            activityName =  spinnerActivity.getSelectedItem().toString();
             button.setText("STOP");
-
+            Toast.makeText(getApplicationContext(), activityName ,Toast.LENGTH_SHORT).show();
             if (!sensingOn) {
                 myStop.run();
             }
@@ -252,13 +269,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             linAccView2.setText("y = " + linAcc[1]);
             linAccView3.setText("z = " + linAcc[2]);
         }
-        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
-            step = event.values;
-            stepCheck = true;
-            TextView stepView = (TextView) findViewById(R.id.stepCounter);
-            stepView.setText("STEP COUNTER = "+step);
-
-        }
+//        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER){
+//            step = event.values;
+//            stepCheck = true;
+//            TextView stepView = (TextView) findViewById(R.id.stepCounter);
+//            stepView.setText("STEP COUNTER = "+step[0]);
+//
+//        }
         
     }
 
