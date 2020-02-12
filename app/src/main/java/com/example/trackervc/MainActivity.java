@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 
@@ -35,6 +36,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, NavigationView.OnNavigationItemSelectedListener{
 
@@ -66,7 +71,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public static boolean sensingOn = false;
 
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+//    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference("vcfittracker");
+
+    EditText nameEt;
+    String name;
+
+
+    int idx = 0;
 
     Runnable myStop = new Runnable() {
         @Override
@@ -83,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             map.put("lin_x", linAcc[0]);
             map.put("lin_y", linAcc[1]);
             map.put("lin_z", linAcc[2]);
+
+            long time_now = System.currentTimeMillis();
+            myRef.child(name + "_" + Long.toString(time_now)).setValue(map);
+
             System.out.println(map);
             System.out.println(sensingOn);
             stopHandler.postDelayed(myStop,1000);
@@ -112,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         gyrCheck = false;
         linAccCheck = false;
         stepCheck = false;
+
+        nameEt = (EditText)findViewById(R.id.name);
 
 
     }
@@ -170,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         else {
             final Button button = (Button) findViewById(R.id.sensingOn);
             startSensing(view);
+            name = (String) nameEt.getText().toString();
+
             button.setText("STOP");
 
             if (!sensingOn) {

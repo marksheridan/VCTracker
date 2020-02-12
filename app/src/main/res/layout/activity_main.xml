@@ -174,11 +174,22 @@
         android:textSize="12sp"
         android:textStyle="bold" />
     <View style="@style/Divider"/>
-    <View style="@style/Divider"/>
-    <View style="@style/Divider"/>
+
 
     <View style="@style/Divider"/>
-    <View style="@style/Divider"/>
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="enter your name here"
+        android:textColor="#262626"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:id="@+id/name"
+
+        android:maxLines="1"
+    />
 
     <Button
         android:id="@+id/sensingOn"
@@ -189,8 +200,6 @@
         android:text="Start"
         android:textAppearance="@style/TextAppearance.AppCompat.Button"
         android:textColor="@color/colorText" />
-
-
 
 
 </LinearLayout>
